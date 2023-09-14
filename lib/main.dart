@@ -1,32 +1,57 @@
-import 'package:auth_rest_api/provider.dart';
+// main.dart
 import 'package:flutter/material.dart';
-import 'package:auth_rest_api/login_screen.dart';
-import 'package:provider/provider.dart';
 
 void main() {
-  bool isDark = false; // Set your desired initial value for isDark
-  runApp(MyApp(isDark: isDark));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isDark;
+  // Using "static" so that we can easily access it later
+  static final ValueNotifier<ThemeMode> themeNotifier =
+      ValueNotifier(ThemeMode.light);
 
-  MyApp({Key? key, required this.isDark}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
-      builder: (context, child) {
-        final provider = Provider.of<ThemeProvider>(context);
-        return MaterialApp(
-          theme: ThemeData.light(),
-          debugShowCheckedModeBanner: false,
-          title: 'Login Using Rest API',
-          home: UploadImageScreen(),
-        );
-      },
+    return ValueListenableBuilder<ThemeMode>(
+        valueListenable: themeNotifier,
+        builder: (_, ThemeMode currentMode, __) {
+          return MaterialApp(
+            // Remove the debug banner
+            debugShowCheckedModeBanner: false,
+            title: 'Dark Mode',
+            theme: ThemeData(primarySwatch: Colors.amber),
+            darkTheme: ThemeData.dark(),
+            themeMode: currentMode,
+            home: const HomeScreen(),
+          );
+        });
+  }
+}
+
+// Home Screen
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dark Theme'),
+        actions: [
+          IconButton(
+              icon: Icon(MyApp.themeNotifier.value == ThemeMode.light
+                  ? Icons.dark_mode
+                  : Icons.light_mode),
+              onPressed: () {
+                MyApp.themeNotifier.value =
+                    MyApp.themeNotifier.value == ThemeMode.light
+                        ? ThemeMode.dark
+                        : ThemeMode.light;
+              })
+        ],
+      ),
     );
   }
 }
