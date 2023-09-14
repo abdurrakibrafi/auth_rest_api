@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:auth_rest_api/home_screen.dart';
+import 'package:auth_rest_api/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:provider/provider.dart';
 
 class UploadImageScreen extends StatefulWidget {
   const UploadImageScreen({Key? key}) : super(key: key);
@@ -13,6 +15,11 @@ class UploadImageScreen extends StatefulWidget {
   _UploadImageScreenState createState() => _UploadImageScreenState();
 }
 
+bool isDark = false;
+IconData _iconLight = Icons.import_contacts_sharp;
+IconData _iconDark = Icons.podcasts;
+
+//image picker
 class _UploadImageScreenState extends State<UploadImageScreen> {
   File? image;
   final _picker = ImagePicker();
@@ -68,11 +75,22 @@ class _UploadImageScreenState extends State<UploadImageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ThemeProvider>(context);
     return ModalProgressHUD(
       inAsyncCall: showSpinner,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Text('Upload Image'),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    isDark = !isDark;
+                  });
+                },
+                icon: Icon(isDark ? _iconDark : _iconLight))
+          ],
         ),
         drawer: Drawer(
           child: ListView(
@@ -94,11 +112,13 @@ class _UploadImageScreenState extends State<UploadImageScreen> {
                     },
                     child: image == null
                         ? Text('Pick Image')
-                        : Image.file(
-                            File(image!.path).absolute,
-                            width: 100,
-                            height: 100,
-                            fit: BoxFit.fill,
+                        : CircleAvatar(
+                            child: Image.file(
+                              File(image!.path).absolute,
+                              width: 150,
+                              height: 150,
+                              fit: BoxFit.fill,
+                            ),
                           ),
                   ),
                 ),
